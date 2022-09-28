@@ -6,7 +6,7 @@ use app\core\Application;
 $app = new Application();
 
 $app->router->get('/', function() {
-    return 'Hellow World';
+    echo 'Hello World';
 });
 
 $app->run();

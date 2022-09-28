@@ -23,7 +23,15 @@ class Router
     // Determine current url and resolve against associative array
     public function resolve()
     {
-        $this->request->getPath();
-        var_dump($this->request->getPath());
+        $path = $this->request->getPath();
+        $method = $this->request->getMethod();
+        // Gets callback function from HTTP method and path
+        $callback = $this->routes[$method][$path] ?? false;
+        if (!$callback)
+        {
+            echo 'Path not found';
+            exit;
+        }
+        call_user_func($callback);
     }
 }
