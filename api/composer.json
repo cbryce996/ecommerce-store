@@ -1,0 +1,17 @@
+{
+    "name": "cameron/ecommerce-store",
+    "autoload": {
+        "psr-4": {
+            "app\\": "./"
+        }
+    },
+    "authors": [
+        {
+            "name": "Cameron",
+            "email": "c.bryce996@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.5"
+    }
+}
