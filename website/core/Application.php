@@ -6,17 +6,19 @@ use app\controllers\MainController;
 
 class Application
 {
+    public array $config;
     public Router $router;
-    public static Application $app;
     public MainController $mainController;
+    public static Application $app;
 
-    public function __construct(array $config)
+    public function __construct(array $_config)
     {
         self::$app = $this;
         $this->router = new Router();
-        $this->mainController = new MainController($config['api']);
+        $this->config = $_config;
+        $this->mainController = new MainController($_config['api']);
     }
-
+    
     public function run($_request)
     {
         return $this->router->execute($_request);

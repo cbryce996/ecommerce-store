@@ -19,6 +19,8 @@ $config = [
 
 $app = new Application($config);
 
-$app->router->registerGet('/', [MainController::class, 'home']);
+$app->router->registerGet('/', array($app->mainController, 'home'));
+$app->router->registerGet('/basket', array($app->mainController, 'basket'));
+$app->router->registerGet('/product', array($app->mainController, 'product'));
 
 echo $app->run(file_get_contents("php://input"));
