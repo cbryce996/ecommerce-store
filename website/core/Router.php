@@ -23,17 +23,10 @@ class Router
         $this->routes["post"][$_path] = $_callback;
     }
 
+    // TODO: Pathing error on live server
     public function getPath()
     {
         $path = $_SERVER["REQUEST_URI"];
-
-        $tokens = explode('/', $path);
-        $path = $tokens[sizeof($tokens)-1];
-
-        if (empty($path))
-        {
-            $path = "/";
-        }
 
         $position = strpos($path, "?");
 
@@ -41,10 +34,7 @@ class Router
         {
             return $path;
         }
-
-        //var_dump($this->routes);
-        //var_dump($_SERVER["REQUEST_URI"]);
-
+        
         return substr($path, 0, $position);
     }
 

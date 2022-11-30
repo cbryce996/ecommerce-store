@@ -20,6 +20,10 @@ $app = new Application($config);
 
 $app->router->registerGet("/", array($app->mainController, "home"));
 $app->router->registerGet("/product", array($app->mainController, "product"));
+$app->router->registerGet("/basket", array($app->mainController, "basket"));
+$app->router->registerGet("/basket/add", array($app->mainController, "addProductToBasket"));
+$app->router->registerGet("/basket/delete", array($app->mainController, "deleteProductFromBasket"));
+
 
 
 echo $app->run(file_get_contents("php://input"));

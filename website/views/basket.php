@@ -1,36 +1,46 @@
 <!-- Section-->
 <section class="py-5">
     <div class="container px-4 px-lg-5 mt-5">
-        <h1>Your basket</h1>
-        <hr/>
-        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-            <table class="table">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <h1>Your basket</h1>
+                <hr/>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <table class="table col-12">
                 <thead>
                     <tr class="text-center align-middle">
+                        <th class="col-3" style="min-width: 150px"></th>
+                        <th>Name</th>
+                        <th>Cost</th>
+                        <th>Qty</th>
                         <th></th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Descrition</th>
-                        <th scope="col">Cost</th>
-                        <th scope="col">Qty</th>
-                        <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
+                        if (!isset($products))
+                        {
+                            echo '<div class="col mb-5">No products in your basket</div>';
+                        }
                         foreach ($products as $product)
                         {
                             echo '<tr class="text-center align-middle">
-                                    <td><img src="'. $product['image_url'] .'" class="img-fluid" style="width:150px"></img></td>
+                                    <td><img src="'. $product['img_url'] .'" class="img-fluid" style="width:100%"></img></td>
                                     <td>'. $product["name"] .'</td>
-                                    <td>'. $product["description"] .'</td>
                                     <td>£'. $product["cost"] .'</td>
                                     <td><input type="number" min="1" value="1" step="1" onkeydown="return false" /></td>
-                                    <td><div class="text-center mb-2"><a class="btn btn-danger mt-auto" href="#">Delete</a></div></td>
+                                    <td>
+                                        <form action="/basket/delete" method="GET">
+                                            <input name="product_id" type="hidden" value="'. $product["id"] .'">
+                                            <div class="text-center"><button class="btn btn-danger mt-auto" type="Submit">Delete</button></div>
+                                        </form>
+                                    </td>
                                 </tr>';
                         }
                     ?>
                     <tr class="text-center align-middle">
-                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
