@@ -15,30 +15,42 @@ class Router
 
     public function registerGet($_path, callable $_callback)
     {
-        $this->routes['get'][$_path] = $_callback;
+        $this->routes["get"][$_path] = $_callback;
     }
 
     public function registerPost($_path, callable $_callback)
     {
-        $this->routes['post'][$_path] = $_callback;
+        $this->routes["post"][$_path] = $_callback;
     }
 
     public function getPath()
     {
-        $path = $_SERVER['REQUEST_URI'] ?? '/';
-        $position = strpos($path, '?');
+        $path = $_SERVER["REQUEST_URI"];
+
+        $tokens = explode('/', $path);
+        $path = $tokens[sizeof($tokens)-1];
+
+        if (empty($path))
+        {
+            $path = "/";
+        }
+
+        $position = strpos($path, "?");
 
         if ($position === false)
         {
             return $path;
         }
 
+        //var_dump($this->routes);
+        //var_dump($_SERVER["REQUEST_URI"]);
+
         return substr($path, 0, $position);
     }
 
     public function getMethod()
     {
-        return strtolower($_SERVER['REQUEST_METHOD']);
+        return strtolower($_SERVER["REQUEST_METHOD"]);
     }
 
     public function execute($_request)
@@ -60,13 +72,13 @@ class Router
     {
         $layoutContent = $this->layoutContent();
         $viewContent = $this->renderOnlyView($_view, $_params);
-        return str_replace('{{content}}', $viewContent, $layoutContent);
+        return str_replace("{{content}}", $viewContent, $layoutContent);
     }
 
     public function layoutContent()
     {
         ob_start();
-        include_once __DIR__ . '/../views/layouts/main.php';
+        include_once __DIR__ . "/../views/layouts/main.php";
         return ob_get_clean();
     }
 
@@ -77,7 +89,7 @@ class Router
         }
 
         ob_start();
-        include_once __DIR__ . '/../views/' . $_view . '.php';
+        include_once __DIR__ . "/../views/" . $_view . ".php";
         return ob_get_clean();
     }
 }

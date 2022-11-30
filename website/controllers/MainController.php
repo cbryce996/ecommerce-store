@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\core\Application;
+use Throwable;
 
 class MainController
 {
@@ -16,18 +17,16 @@ class MainController
     public function home()
     {
         $payload = json_encode(array(
-            'jsonrpc' => '2.0',
-            'method' => 'getProducts',
-            'params' => array(
-                null
-            ),
-            'id' => '1'
+            "jsonrpc" => "2.0",
+            "method" => "getAllProducts",
+            "params" => array(),
+            "id" => "1"
         ));
 
-        $curl = curl_init($this->config['host']);
+        $curl = curl_init($this->config["host"]);
 
         curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
         $response = curl_exec($curl);
@@ -35,32 +34,79 @@ class MainController
 
         $decoded = json_decode($response, true);
 
-        var_dump($decoded);
+        if ($decoded)
+        {
+            if (!isset($decoded["result"]))
+            {
+                $decoded = array(
+                    "result" => array(
+                        "message" => "Server error: either responded with unecpected result or no result at all."
+                    )
+                );
+                return Application::$app->router->renderView("error", $decoded["result"]);
+            }
 
-        return Application::$app->router->renderView('home', $decoded['result']);
+            return Application::$app->router->renderView("home", $decoded["result"]);
+        }
+
+        return "Something went wrong";
     }
 
     public function product()
     {
-        var_dump($_GET['id']);
-        return Application::$app->router->renderView('product');
+        $payload = json_encode(array(
+            "jsonrpc" => "2.0",
+            "method" => "getProduct",
+            "params" => array(
+                "id" => $_GET["id"]
+            ),
+            "id" => "1"
+        ));
+
+        $curl = curl_init($this->config["host"]);
+
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        $decoded = json_decode($response, true);
+
+        if ($decoded)
+        {
+            if (!isset($decoded["result"]))
+            {
+                $decoded = array(
+                    "result" => array(
+                        "message" => "Server error: either responded with unecpected result or no result at all."
+                    )
+                );
+                return Application::$app->router->renderView("error", $decoded["result"]);
+            }
+
+            return Application::$app->router->renderView("product", $decoded["result"]);
+        }
+
+        return "Something went wrong";
     }
 
     public function basket()
     {
         $payload = json_encode(array(
-            'jsonrpc' => '2.0',
-            'method' => 'getProducts',
-            'params' => array(
+            "jsonrpc" => "2.0",
+            "method" => "getProduct",
+            "params" => array(
                 null
             ),
-            'id' => '1'
+            "id" => "1"
         ));
 
-        $curl = curl_init($this->config['host']);
+        $curl = curl_init($this->config["host"]);
 
         curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
         $response = curl_exec($curl);
@@ -68,7 +114,22 @@ class MainController
 
         $decoded = json_decode($response, true);
 
-        return Application::$app->router->renderView('basket', $decoded['result']);
+        if ($decoded)
+        {
+            if (!isset($decoded["result"]))
+            {
+                $decoded = array(
+                    "result" => array(
+                        "message" => "Server error: either responded with unecpected result or no result at all."
+                    )
+                );
+                return Application::$app->router->renderView("error", $decoded["result"]);
+            }
+
+            return Application::$app->router->renderView("basket", $decoded["result"]);
+        }
+
+        return "Something went wrong";
     }
 
     /*

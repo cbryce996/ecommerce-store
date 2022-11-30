@@ -21,9 +21,9 @@
                         {
                             echo '<tr class="text-center align-middle">
                                     <td><img src="'. $product['image_url'] .'" class="img-fluid" style="width:150px"></img></td>
-                                    <td>'. $product['name'] .'</td>
-                                    <td>'. $product['description'] .'</td>
-                                    <td>£'. $product['cost'] .'</td>
+                                    <td>'. $product["name"] .'</td>
+                                    <td>'. $product["description"] .'</td>
+                                    <td>£'. $product["cost"] .'</td>
                                     <td><input type="number" min="1" value="1" step="1" onkeydown="return false" /></td>
                                     <td><div class="text-center mb-2"><a class="btn btn-danger mt-auto" href="#">Delete</a></div></td>
                                 </tr>';

@@ -12,7 +12,8 @@
         <!-- Bootstrap icons-->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="../assets/css/styles.css" rel="stylesheet" />
+        <link href="../../assets/css/styles.css" rel="stylesheet" />
+        <link href="/~2004624/cmp306/coursework/block1/assets/css/styles.css" rel="stylesheet" />
     </head>
     <body>
         <!-- Navigation-->

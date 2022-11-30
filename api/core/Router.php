@@ -13,7 +13,7 @@ class Router
         $this->procedures = [];
     }
 
-    public function register($_method, $_callback)
+    public function register($_method, callable $_callback)
     {
         $this->procedures[$_method] = $_callback;
     }
@@ -54,7 +54,7 @@ class Router
         }
 
         // If method is not registered return error response
-        if (call_user_func($this->procedures[$decoded['method']]) == null)
+        if ($this->procedures[$decoded['method']] == null)
         {
             return json_encode(array(
                 'error' => array(
@@ -65,11 +65,12 @@ class Router
             ));
         }
 
+        // TODO: Properly encode requests and reponses
         // Return json-rpc response with result and id
-        return json_encode(array(
+        return mb_convert_encoding(json_encode(array(
             'jsonrpc' => '2.0',
-            'result' => call_user_func($this->procedures[$decoded['method']]),
+            'result' => call_user_func($this->procedures[$decoded['method']], $decoded['params']),
             'id' => $decoded['id']
-        ));
+        )), "utf-8");
     }
 }

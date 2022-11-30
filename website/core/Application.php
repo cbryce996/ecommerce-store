@@ -16,7 +16,7 @@ class Application
         self::$app = $this;
         $this->router = new Router();
         $this->config = $_config;
-        $this->mainController = new MainController($_config['api']);
+        $this->mainController = new MainController($_config["api"]);
     }
     
     public function run($_request)

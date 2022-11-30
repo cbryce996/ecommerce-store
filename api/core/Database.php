@@ -13,13 +13,7 @@ class Database
         $dsn = $config['dsn'] ?? '';
         $user = $config['user'] ?? '';
         $password = $config['password'] ?? '';
-        try
-        {
-            $this->pdo = new \PDO($dsn, $user, $password);
-        }
-        catch(Exception $e)
-        {
-            echo "Could not connect to database: " . $e->getMessage();
-        }
+
+        $this->pdo = new \PDO($dsn, $user, $password);
     }
 }

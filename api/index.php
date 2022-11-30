@@ -1,13 +1,6 @@
 <?php
 
-// Serves as public entry point for API
-// Should contain an instance of the Application class
-// and run call to execute a function
-
-use app\controllers\MainController;
 use app\core\Application;
-use app\models\Product;
-use app\models\Basket;
 
 require_once __DIR__.'/vendor/autoload.php';
 
@@ -27,6 +20,7 @@ $config = [
 
 $app = new Application($config);
 
-$app->router->register('basket', [MainController::class, 'GetBasket']);
+$app->router->register('getProduct', array($app->mainController, 'getProduct'));
+$app->router->register('getAllProducts', array($app->mainController, 'getAllProducts'));
 
 echo $app->run(file_get_contents("php://input"));
