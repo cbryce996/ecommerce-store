@@ -2,8 +2,9 @@
 
 namespace app\controllers;
 
+session_start();
+
 use app\core\Application;
-use Throwable;
 
 class MainController
 {
@@ -38,15 +39,10 @@ class MainController
         {
             if (!isset($decoded["result"]))
             {
-                $decoded = array(
-                    "result" => array(
-                        "message" => "Server error: either responded with unexpected result or no result at all."
-                    )
-                );
-                return Application::$app->router->renderView("error", $decoded["result"]);
+                return Application::$app->router->renderView("error", array ( "message" => "No results returned from server"));
             }
 
-            return Application::$app->router->renderView("home", $decoded["result"]);
+            return Application::$app->router->renderView("home", array ( "products" => $decoded["result"]));
         }
 
         return "Null result from server";
@@ -78,15 +74,10 @@ class MainController
         {
             if (!isset($decoded["result"]))
             {
-                $decoded = array(
-                    "result" => array(
-                        "message" => "Server error: either responded with unexpected result or no result at all."
-                    )
-                );
-                return Application::$app->router->renderView("error", $decoded["result"]);
+                return Application::$app->router->renderView("error", array ( "message" => "No results returned from server"));
             }
 
-            return Application::$app->router->renderView("product", $decoded["result"]);
+            return Application::$app->router->renderView("product", array( "product" => array_pop($decoded["result"])));
         }
 
         return "Something went wrong";
@@ -94,129 +85,59 @@ class MainController
 
     public function basket()
     {
-        $payload = json_encode(array(
-            "jsonrpc" => "2.0",
-            "method" => "getBasket",
-            "params" => array(
-                "user_id" => "1"
-            ),
-            "id" => "1"
-        ));
-
-        $curl = curl_init($this->config["host"]);
-
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $decoded = json_decode($response, true);
-
-        var_dump($response);
-
-        if ($decoded)
+        if (!empty($_SESSION["basket"]))
         {
-            if (!isset($decoded["result"]))
+            $payload = json_encode(array(
+                "jsonrpc" => "2.0",
+                "method" => "getProduct",
+                "params" => array(
+                    "id" => reset($_SESSION["basket"]) ?? 0
+                ),
+                "id" => "1"
+            ));
+    
+            $curl = curl_init($this->config["host"]);
+    
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    
+            $response = curl_exec($curl);
+            curl_close($curl);
+    
+            $decoded = json_decode($response, true);
+    
+            if ($decoded)
             {
-                $decoded = array(
-                    "result" => array(
-                        "message" => "Server error: either responded with unecpected result or no result at all."
-                    )
-                );
-                return Application::$app->router->renderView("error", $decoded["result"]);
+                if (!isset($decoded["result"]))
+                {
+                    return Application::$app->router->renderView("error", array ( "message" => "No results returned from server"));
+                }
+    
+                return Application::$app->router->renderView("basket", array( "product" => array_pop($decoded["result"])));
             }
+        }
+        
+        return Application::$app->router->renderView("basket");
+    }
 
-            return Application::$app->router->renderView("basket", $decoded["result"]);
+    public function basketAdd()
+    {
+        if (empty($_SESSION["basket"]))
+        {
+            array_push($_SESSION["basket"], $_GET["id"]);
         }
 
-        return "Something went wrong";
+        header('Location: /basket');
     }
 
-    public function addProductToBasket()
+    public function basketDelete()
     {
-        $payload = json_encode(array(
-            "jsonrpc" => "2.0",
-            "method" => "addProductToBasket",
-            "params" => array(
-                "product_id" => intval($_GET["product_id"]),
-                "user_id" => 1,
-                "qty" => 1
-            ),
-            "id" => "1"
-        ));
-
-        $curl = curl_init($this->config["host"]);
-
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $decoded = json_decode($response, true);
-
-        if ($decoded)
+        if (!empty($_SESSION["basket"]))
         {
-            if (!isset($decoded["result"]))
-            {
-                return Application::$app->router->renderView("error", array("message" => "Server error: either responded with unexpected result or no result at all."));
-            }
-
-            // TODO: Implement way to redirect request to controller method
-            return $this->basket();
+            array_pop($_SESSION["basket"]);
         }
 
-        return Application::$app->router->renderView("error", array ("message" => "Server failed to provide a response"));
+        header('Location: /basket');
     }
-
-    public function deleteProductFromBasket()
-    {
-        $payload = json_encode(array(
-            "jsonrpc" => "2.0",
-            "method" => "deleteProductFromBasket",
-            "params" => array(
-                "product_id" => intval($_GET["product_id"]),
-                "user_id" => 1,
-            ),
-            "id" => "1"
-        ));
-
-        $curl = curl_init($this->config["host"]);
-
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $decoded = json_decode($response, true);
-
-        if ($decoded)
-        {
-            if (!isset($decoded["result"]))
-            {
-                return Application::$app->router->renderView("error", array("message" => "Server error: either responded with unexpected result or no result at all."));
-            }
-
-            // TODO: Implement way to redirect request to controller method
-            return $this->basket();
-        }
-
-        return Application::$app->router->renderView("error", array ("message" => "Server failed to provide a response"));
-    }
-
-    /*
-    public function getProducts()
-    {
-        $params = [
-            'products' => $this->getProducts()
-        ];
-
-        return Application::$app->router->renderView('home', $params);
-    }
-    */
 }

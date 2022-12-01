@@ -3,8 +3,6 @@
     <div class="container px-4 px-lg-5 mt-5">
         <div class="row justify-content-center">
             <?php
-                // TODO: Safe guards agains empty or not set parameter, possibly use view model to ensure expected field
-                // TODO: are set.
                 if (!isset($products))
                 {
                     echo '<div class="col mb-5">No products returned from server</div>';
