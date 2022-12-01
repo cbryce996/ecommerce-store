@@ -21,10 +21,10 @@ $config = [
 
 $app = new Application($config);
 
-$app->router->registerGet("/", array($app->mainController, "home"));
-$app->router->registerGet("/product", array($app->mainController, "product"));
-$app->router->registerGet("/basket", array($app->mainController, "basket"));
-$app->router->registerGet("/basket/add", array($app->mainController, "basketAdd"));
-$app->router->registerGet("/basket/delete", array($app->mainController, "basketDelete"));
+$app->router->get("/", array($app->mainController, "home"));
+$app->router->get("/product", array($app->mainController, "product"));
+$app->router->get("/basket", array($app->mainController, "basket"));
+$app->router->post("/basket/add", array($app->mainController, "basketAdd"));
+$app->router->post("/basket/delete", array($app->mainController, "basketDelete"));
 
 echo $app->run(file_get_contents("php://input"));

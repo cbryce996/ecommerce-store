@@ -1,76 +1,143 @@
 <?php
 
-namespace app\core;
+namespace app\Core;
 
-use Error;
-
+/*
+* JSON-RPC Router
+*/
 class Router
 {
-    public array $procedures;
+    public array $routes;
 
     public function __construct()
     {
-        $this->procedures = [];
+        $this->routes = [];
     }
 
-    public function register($_method, callable $_callback)
+    /*
+    * Registers a get procedure
+    */
+    public function get($_procedure, callable $_callback)
     {
-        $this->procedures[$_method] = $_callback;
+        $this->routes["get"][$_procedure] = $_callback;
     }
 
-    public function execute($_request)
+    /*
+    * Registers a post procedure
+    */
+    public function post($_procedure, callable $_callback)
     {
-        // Set header type for outputs to json
+        $this->routes["post"][$_procedure] = $_callback;
+    }
+    
+    /*
+    * Routes to endpoint and executes callback based on request
+    */
+    public function execute()
+    {
         header('Content-Type: application/json');
 
-        $payload = $_request;
+        // Get request body
+        $request = file_get_contents("php://input");
 
-        if (empty($payload))
+        // Decode and validate JSON
+        $decoded = json_decode($request, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE)
         {
-            return json_encode(array(
-                'error' => array(
-                    'message' => 'Payload is empty',
-                    'code' => '-32000'
-                ),
-                'id' => null
-            ));
+            return $this->error($decoded["id"] ?? null, "-32700", "Invalid Json format, could not parse");
+        }
+        
+        // Check decoded result is in required format
+        if (!isset($decoded["params"]) ||
+        !isset($decoded["method"]) ||
+        !isset($decoded["id"]) ||
+        $decoded["jsonrpc"] != "2.0")
+        {
+            return $this->error($decoded["id"] ?? null, "-32600", "Request doesn't conform to JSON-RPC 2.0");
         }
 
-        $decoded = json_decode($payload, true);
+        // Check callback function exists and check params are good
+        $method = strtolower($_SERVER["REQUEST_METHOD"]);
 
-        // Check that request contains required fields  
-        if (!isset($decoded['params']) ||
-            !isset($decoded['method']) ||
-            !isset($decoded['id']) ||
-            $decoded['jsonrpc'] != '2.0')
+        $callback = $this->routes[$method][$decoded["method"]] ?? false;
+
+        if (!$callback)
         {
-            return json_encode(array(
-                'error' => array(
-                    'message' => "Invalid request body format",
-                    'code' => '-32000'
-                ),
-                'id' => null
-            ));
+            return $this->error($decoded["id"] ?? null, "-32601", "Method not found");
         }
 
-        // If method is not registered return error response
-        if ($this->procedures[$decoded['method']] == null)
+        $reflection = new \ReflectionFunction(\Closure::fromCallable($callback));
+
+        $parameters = $reflection->getParameters();
+
+        $params = array();
+
+        if (!$this->mapParameters($decoded["params"], $parameters, $params))
         {
-            return json_encode(array(
-                'error' => array(
-                    'message' => 'Method not found',
-                    'code' => '-32000'
-                ),
-                'id' => null
-            ));
+            return $this->error($decoded["id"] ?? null, "-32602", "Invalid method parameters");
         }
 
-        // TODO: Properly encode requests and reponses
-        // Return json-rpc response with result and id
-        return mb_convert_encoding(json_encode(array(
-            'jsonrpc' => '2.0',
-            'result' => call_user_func($this->procedures[$decoded['method']], $decoded['params']),
-            'id' => $decoded['id']
-        )), "utf-8");
+        // Execute the procedure and return response
+        return $this->response($decoded["id"], $reflection->invokeArgs($params));
+    }
+
+    /*
+    * Maps request parameters and checks if they match callback parameters
+    */
+    public function mapParameters(array $_request, array $_callback, array &$_params)
+    {
+        // Positional parameters
+        if (array_keys($_request) === range(0, count($_request) - 1))
+        {
+            if (count($_request) !== count($_callback)) return false;
+            $_params = $_request;
+
+            return true;
+        }
+
+        // Named parameters
+        foreach ($_callback as $p)
+        {
+
+            $name = $p->getName();
+
+            if (isset($_request[$name])) {
+
+                $_params[$name] = $_request[$name];
+            }
+            else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /*
+    * Processes and prepares error response
+    */
+    public function error($_id, $_code, $_message)
+    {
+        return json_encode(array(
+            "jsonrpc" => "2.0",
+            "id" => $_id,
+            "error" => array(
+                "code" => $_code,
+                "message" => $_message
+            )
+        ));
+    }
+
+    /*
+    * Processes and prepares valid response
+    */
+    public function response($_id, $_result)
+    {
+        return json_encode(array(
+            "jsonrpc" => "2.0",
+            "id" => $_id,
+            "result" => $_result
+        ));
     }
 }

@@ -20,7 +20,7 @@ $config = [
 
 $app = new Application($config);
 
-$app->router->register('getProduct', array($app->mainController, 'getProduct'));
-$app->router->register('getAllProducts', array($app->mainController, 'getAllProducts'));
+$app->router->get('getProduct', array($app->mainController, 'getProduct'));
+$app->router->get('getAllProducts', array($app->mainController, 'getAllProducts'));
 
 echo $app->run(file_get_contents("php://input"));

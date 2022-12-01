@@ -2,7 +2,7 @@
 
 namespace app\core;
 
-use Error;
+use app\models\ErrorViewModel;
 
 class Router
 {
@@ -13,17 +13,16 @@ class Router
         $this->routes = [];
     }
 
-    public function registerGet($_path, callable $_callback)
+    public function get($_path, callable $_callback)
     {
         $this->routes["get"][$_path] = $_callback;
     }
 
-    public function registerPost($_path, callable $_callback)
+    public function post($_path, callable $_callback)
     {
         $this->routes["post"][$_path] = $_callback;
     }
 
-    // TODO: Pathing error on live server
     public function getPath()
     {
         $path = $_SERVER["REQUEST_URI"];
@@ -43,6 +42,42 @@ class Router
         return strtolower($_SERVER["REQUEST_METHOD"]);
     }
 
+     /*
+    * Maps request parameters and checks if they match callback parameters
+    */
+    public function mapParameters(array $_request, array $_callback, array &$_params)
+    {
+        // Positional parameters
+        if (array_keys($_request) === range(0, count($_request) - 1))
+        {
+
+            var_dump(count($_request), count($_callback));
+
+            if (count($_request) !== count($_callback)) return false;
+            $_params = $_request;
+
+            return true;
+        }
+
+        // Named parameters
+        foreach ($_callback as $p)
+        {
+
+            $name = $p->getName();
+
+            if (isset($_request[$name])) {
+
+                $_params[$name] = $_request[$name];
+            }
+            else {
+                var_dump(count($_request), count($_callback));
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function execute($_request)
     {
         $path = $this->getPath();
@@ -50,12 +85,46 @@ class Router
 
         $callback = $this->routes[$method][$path] ?? false;
 
-        if (is_string($callback))
+        // Check if route is registered
+        if (!$callback)
         {
-            return $this->renderView($callback);
+            http_response_code(404);
+            return $this->renderView("error", new ErrorViewModel(404, "Route not found"));
         }
 
-        return call_user_func($callback);
+        $reflection = new \ReflectionFunction(\Closure::fromCallable($callback));
+
+        $parameters = $reflection->getParameters();
+
+        $params = array();
+
+        // If method is get check if params match
+        if ($method == "get")
+        {
+            if (!$this->mapParameters($_GET, $parameters, $params))
+            {
+                http_response_code(400);
+                return $this->renderView("error", new ErrorViewModel(400, "Invalid parameters"));
+            }
+        }
+        // If method is post check if params match
+        else if ($method == "post")
+        {
+            if (!$this->mapParameters($_POST, $parameters, $params))
+            {
+                http_response_code(400);
+                return $this->renderView("error", new ErrorViewModel(400, "Invalid parameters"));
+            }
+        }
+        else
+        {
+            http_response_code(405);
+            return $this->renderView("error", new ErrorViewModel(400, "Method not supported"));
+        }
+        
+        // Execute the callback and return response
+        http_response_code(200);
+        return $reflection->invokeArgs($params);
     }
 
     public function renderView($_view, $_params = [])

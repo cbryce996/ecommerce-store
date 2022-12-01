@@ -10,7 +10,17 @@
                     }
                     else
                     {
-                        echo '<div class="col mb-5">'. $message .'</div>';
+                        echo '
+                            <div class="col mb-5">
+                                <h1 class="fw-bolder">
+                                Error
+                                </h1>
+                                <hr/>
+                                <h4 class="fw-bolder">
+                                '. $code .'
+                                </h4>
+                            '. $message .'
+                            </div>';
                     }
                 ?>
             </div>

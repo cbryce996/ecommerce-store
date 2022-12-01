@@ -5,6 +5,9 @@ namespace app\controllers;
 session_start();
 
 use app\core\Application;
+use app\core\Api;
+use app\models\ProductViewModel;
+use app\models\ErrorViewModel;
 
 class MainController
 {
@@ -17,35 +20,29 @@ class MainController
 
     public function home()
     {
-        $payload = json_encode(array(
-            "jsonrpc" => "2.0",
-            "method" => "getAllProducts",
-            "params" => array(),
-            "id" => "1"
-        ));
-
-        $curl = curl_init($this->config["host"]);
-
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type:application/json"));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $decoded = json_decode($response, true);
-
-        if ($decoded)
+        if (!isset($this->config["host"]))
         {
-            if (!isset($decoded["result"]))
-            {
-                return Application::$app->router->renderView("error", array ( "message" => "No results returned from server"));
-            }
-
-            return Application::$app->router->renderView("home", array ( "products" => $decoded["result"]));
+            http_response_code(500);
+            return Application::$app->router->renderView("error", new ErrorViewModel(500, "Server not found"));
         }
 
-        return "Null result from server";
+        $api = new Api($this->config["host"]);
+
+        $result = $api->execute("getProducts", null);
+
+        // TODO: Implement view models
+        return Application::$app->router->renderView("home", array("products" => $result["result"]));
+
+        /*
+        foreach ($result as $product)
+        {
+            array_push($products, new ProductViewModel(
+                $result["name"],
+                $result["description"],
+                $result["cost"]
+            ));
+        }
+        */
     }
 
     public function product()
