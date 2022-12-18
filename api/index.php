@@ -22,5 +22,6 @@ $app = new Application($config);
 
 $app->router->get('getProduct', array($app->mainController, 'getProduct'));
 $app->router->get('getAllProducts', array($app->mainController, 'getAllProducts'));
+$app->router->get('authUser', array($app->mainController, 'authUser'));
 
 echo $app->run(file_get_contents("php://input"));

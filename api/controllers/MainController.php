@@ -14,7 +14,7 @@ class MainController
 
     public function getAllProducts()
     {
-        $stmt = Application::$app->db->pdo->query('SELECT * FROM `Products`');
+        $stmt = Application::$app->db->pdo->query("SELECT * FROM Products");
 
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -23,10 +23,27 @@ class MainController
 
     public function getProduct($id)
     {
-        $stmt = Application::$app->db->pdo->query('SELECT * FROM `Products` WHERE id =' . $id);
+        $stmt = Application::$app->db->pdo->query("SELECT * FROM Products WHERE id =" . $id);
 
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
+    }
+
+    public function authUser($username, $password)
+    {   
+        $stmt = Application::$app->db->pdo->query("SELECT * FROM Users WHERE username = '" . $username . "'");
+
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (!empty($result))
+        {
+            if (reset($result)["password"] == $password)
+            {
+                return array("auth" => true);
+            }
+        }
+        
+        return array("auth" => false);
     }
 }

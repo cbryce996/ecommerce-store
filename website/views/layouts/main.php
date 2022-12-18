@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -24,10 +23,30 @@
                         <li class="nav-item"><a class="nav-link active" aria-current="page" href="/">Home</a></li>
                     </ul>
                     <form class="d-flex">
-                        <a class="btn btn-outline-dark" href="/basket">
+                        <a class="btn btn-outline-dark me-2" href="/basket">
                             <i class="bi-cart-fill me-1"></i>
                             Basket
                         </a>
+                        <?php
+                            if (isset($_SESSION["user"]))
+                            {
+                                echo '<a class="btn btn-outline-dark me-2" href="/admin">
+                                        <i class="bi bi-person me-1"></i>
+                                        Admin
+                                    </a>
+                                    <a class="btn btn-outline-dark" href="/logout">
+                                        <i class="bi-box-arrow-in-left me-1"></i>
+                                        Logout
+                                    </a>';
+                            }
+                            else
+                            {
+                                echo '<a class="btn btn-outline-dark" href="/login">
+                                    <i class="bi-box-arrow-in-left me-1"></i>
+                                    Login
+                                </a>';
+                            }
+                        ?>
                     </form>
                 </div>
             </div>

@@ -44,7 +44,7 @@
                                             <td></td>
                                             <td></td>
                                             <td></td>
-                                            <td><div class="text-center mb-2"><a class="btn btn-primary mt-auto" href="/checkout">Checkout</a></div></td>
+                                            <td><div class="text-center mb-2"><a class="btn btn-primary mt-auto" href="#">Checkout</a></div></td>
                                         </tr>
                                     </tbody>
                                 </table>';

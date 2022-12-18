@@ -19,8 +19,8 @@ class Api
 
         $payload = json_encode(array(
             "jsonrpc" => "2.0",
-            "method" => "getAllProducts",
-            "params" => array(),
+            "method" => $_method,
+            "params" => $_params ?? array(),
             "id" => $id
         ));
 
@@ -44,7 +44,7 @@ class Api
         if (json_last_error() !== JSON_ERROR_NONE)
         {
             http_response_code(500);
-            die(Application::$app->router->renderView("error", new ErrorViewModel(500, "Internal server error: failure to parse json")));
+            die(Application::$app->router->renderView("error", new ErrorViewModel(500, "Internal server error: failure to parse json response")));
         }
 
         if (isset($decoded["error"]))
@@ -63,7 +63,7 @@ class Api
         if ($decoded["id"] !== $_id)
         {
             http_response_code(500);
-            die(Application::$app->router->renderView("error", new ErrorViewModel(500, "Bad server response: resposne id does not match request id")));
+            die(Application::$app->router->renderView("error", new ErrorViewModel(500, "Bad server response: response id does not match request id")));
         }
 
         return $decoded;

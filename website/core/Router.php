@@ -50,9 +50,6 @@ class Router
         // Positional parameters
         if (array_keys($_request) === range(0, count($_request) - 1))
         {
-
-            var_dump(count($_request), count($_callback));
-
             if (count($_request) !== count($_callback)) return false;
             $_params = $_request;
 
@@ -70,7 +67,6 @@ class Router
                 $_params[$name] = $_request[$name];
             }
             else {
-                var_dump(count($_request), count($_callback));
                 return false;
             }
         }
