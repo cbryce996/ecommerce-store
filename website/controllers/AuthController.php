@@ -7,8 +7,6 @@ use app\core\Api;
 use app\models\ProductViewModel;
 use app\models\ErrorViewModel;
 
-session_start();
-
 // Handles user authentication
 class AuthController
 {

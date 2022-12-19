@@ -15,7 +15,7 @@
                         <img src="'. $products[0]["img_url"]. '" style="width: 100%" />
                     </div>
                     <div class="text-center col-sm-6 col-lg-7">
-                        <h5 class="fw-bolder">'. $products[0]["name"] .'></h5>
+                        <h5 class="fw-bolder">'. $products[0]["name"] .'</h5>
                         <p>'. $products[0]["description"] .'</p>
                         <h5 class="fw-bolder pb-2">£'. $products[0]["cost"] .'</h5>
                         <form action="/basket/add" method="GET">

@@ -46,4 +46,13 @@ class MainController
         
         return array("auth" => false);
     }
+
+    public function productAdd($name, $description, $cost, $qty, $img_url)
+    {
+        $stmt = Application::$app->db->pdo->query("INSERT INTO `Products`(`name`, `description`, `cost`, `qty`, `img_url`) VALUES ('".$name."','".$description."','".$cost."','".$qty."','".$img_url."')");
+
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $result;
+    }
 }

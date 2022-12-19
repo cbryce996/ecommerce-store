@@ -7,8 +7,6 @@ use app\core\Api;
 use app\models\ProductViewModel;
 use app\models\ErrorViewModel;
 
-session_start();
-
 // Handles rendering of views
 class MainController
 {
@@ -49,6 +47,41 @@ class MainController
 
         // TODO: Implement view models
         return Application::$app->router->renderView("product", array("products" => $result["result"]));
+    }
+
+    public function productAdd()
+    {
+        if (!isset($_SESSION["user"]))
+        {
+           header("Location: /login");
+           exit;
+        }
+
+        // TODO: Implement view models
+        return Application::$app->router->renderView("add_product");
+    }
+
+    // TODO: Overload function based on HTTP method, Get or Post?
+    public function productAddSubmit($name, $description, $cost, $qty, $img_url)
+    {
+        if (!isset($_SESSION["user"]))
+        {
+           header("Location: /login");
+           exit;
+        }
+
+        if (!isset($this->config["host"]))
+        {
+            http_response_code(500);
+            return Application::$app->router->renderView("error", new ErrorViewModel(500, "Server not found"));
+        }
+
+        $api = new Api($this->config["host"]);
+
+        $api->execute("productAdd", array($name, $description, $cost, $qty, $img_url));
+
+        // TODO: Implement view models
+        header("Location: /");;
     }
 
     public function basket()
@@ -126,6 +159,16 @@ class MainController
            exit;
         }
 
-        return Application::$app->router->renderView("admin");
+        if (!isset($this->config["host"]))
+        {
+            http_response_code(500);
+            return Application::$app->router->renderView("error", new ErrorViewModel(500, "Server not found"));
+        }
+
+        $api = new Api($this->config["host"]);
+
+        $result = $api->execute("getAllProducts", null);
+
+        return Application::$app->router->renderView("admin", array("products" => $result["result"]));
     }
 }
